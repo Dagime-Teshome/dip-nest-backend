@@ -51,28 +51,14 @@ jobs:
 
       - name: Deploy using SSM
         run: |
-          echo "Deploying to instances: $INSTANCE_IDS"
           command_id=$(aws ssm send-command \
-            --document-name "AWS-RunShellScript" \
-            --targets "Key=instanceids,Values=i-0365b78f5dc2fc512,i-07f50ab667ebda06b" \
-            --comment "Pull and run Docker container" \
-            --parameters commands='[
+          --document-name "AWS-RunShellScript" \
+          --targets "Key=instanceids,Values=i-0365b78f5dc2fc512,i-07f50ab667ebda06b" \
+          --comment "Pull and run Docker container" \
+          --parameters commands='[
               "aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin $ECR_REGISTRY",
-            ]' \
-            --output text \
-            --query "Command.CommandId")
-
-          echo "Command ID: $command_id"
-
-          aws ssm get-command-invocation \
-          --command-id "$command_id" \
-          --instance-id "i-0365b78f5dc2fc512" \
-          --output text
-
+           ]'--query "Command.CommandId" --output text)
 
           aws ssm wait command-executed \
           --command-id $command_id \
-          --instance-id "i-0365b78f5dc2fc512"
-          --output text
-
-          commandOutput =$(aws ssm list-commands --command-id $command_id)
+          --instance-id i-0365b78f5dc2fc512
