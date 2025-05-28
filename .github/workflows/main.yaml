@@ -1,0 +1,75 @@
+# yaml file to push docker image to amazon elastic container registry
+name: Deploy to EC2 instances
+
+on:
+  push:
+    branches: ['main']
+
+jobs:
+  build-and-push-to-ecr:
+    name: Build Docker Image and Push to ECR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup aws ecr details
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login Into Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build And Push Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+  deploy-to-ec2:
+    name: Deploy to EC2 Instance
+    needs: build-and-push-to-ecr
+    runs-on: ubuntu-latest
+    env:
+      ECR_REGISTRY: ${{ needs.build-and-push-to-ecr.outputs.ecr_registry }}
+      ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
+      INSTANCE_IDS: ${{ vars.INSTANCE_IDS }}
+      IMAGE_TAG: latest
+      AWS_REGION: us-east-1
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy using SSM
+        run: |
+          echo "Deploying to instances: $INSTANCE_IDS"
+
+          command_id=$(aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --targets "Key=instanceIds,Values=$INSTANCE_IDS" \
+            --comment "Pull and run Docker container" \
+            --parameters commands='[
+              "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $ECR_REGISTRY",
+              "docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG",
+              "docker stop app || true && docker rm app || true",
+              "docker run -d --name app -p 80:80 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+            ]' \
+            --output text \
+            --query "Command.CommandId")
+
+          for id in $INSTANCE_IDS; do
+            echo "Waiting for instance $id..."
+            aws ssm wait command-executed --command-id "$command_id" --instance-id "$id"
+            echo "Instance $id finished."
+          done

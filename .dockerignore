@@ -1,0 +1,27 @@
+# list of flies and folder for docker to ignore
+.git
+.gitignore
+.dockerignore
+*docker-compose*
+*Dockerfile*
+# Build dependencies
+dist
+node_modules
+coverage
+
+# Environment (contains sensitive data)
+.env
+
+# Files not required for production
+.editorconfig
+Dockerfile
+README.md
+.eslintrc.js
+nodemon.json
+.vscode/
+.github/
+LICENSE
+*.md
+.editorconfig
+commitlint*
+*.gql
