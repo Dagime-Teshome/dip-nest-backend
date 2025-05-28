@@ -55,7 +55,7 @@ jobs:
 
           command_id=$(aws ssm send-command \
             --document-name "AWS-RunShellScript" \
-            --targets "Key=instanceIds,Values=$INSTANCE_IDS" \
+            --instance-ids $INSTANCE_IDS \
             --comment "Pull and run Docker container" \
             --parameters commands='[
               "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $ECR_REGISTRY",
