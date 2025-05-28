@@ -69,9 +69,10 @@ jobs:
           --instance-id "i-0365b78f5dc2fc512" \
           --output text
 
-          commandOutput =$(aws ssm list-commands --command-id $command_id)
 
           aws ssm wait command-executed \
           --command-id $command_id \
           --instance-id "i-0365b78f5dc2fc512"
           --output text
+
+          commandOutput =$(aws ssm list-commands --command-id $command_id)
