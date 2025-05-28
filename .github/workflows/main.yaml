@@ -49,7 +49,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Deploy using SSM
+      - name: Login Into Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Deploy to EC2 instances
         run: |
           command_id=$(aws ssm send-command \
           --document-name "AWS-RunShellScript" \
@@ -57,10 +61,10 @@ jobs:
           --comment "Pull and run Docker container" \
           --parameters commands='[
             "aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin $ECR_REGISTRY",
+            "docker stop api || true",
             "docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG",
-            "docker stop $(docker ps -q --filter ancestor=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG) || true",
             "docker rm $(docker ps -aq --filter ancestor=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG) || true",
-            "docker run -d --name my_container -p 3000:3000 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+            "docker run -d --name my_container -p 3000:3000 --name api $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           ]' \
           --query "Command.CommandId" \
           --output text)
