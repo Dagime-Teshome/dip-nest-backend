@@ -58,13 +58,12 @@ jobs:
           command_id=$(aws ssm send-command \
           --document-name "AWS-RunShellScript" \
           --targets "Key=instanceids,Values=i-0365b78f5dc2fc512,i-07f50ab667ebda06b" \
-          --comment "Pull and run Docker container" \
+          --comment "Pull and run Docker image" \
           --parameters commands='[
-            "aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin $ECR_REGISTRY",
+            "aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}",
             "docker stop api || true",
-            "docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG",
-            "docker rm $(docker ps -aq --filter ancestor=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG) || true",
-            "docker run -d --name my_container -p 3000:3000 --name api $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+            "docker pull ${{steps.login-ecr.outputs.registry}}/${{ vars.REPO_NAME }}:$IMAGE_TAG",
+            "docker run -rm -d -p 3000:3000 --name api ${{steps.login-ecr.outputs.registry}}/${{ vars.REPO_NAME }}:$IMAGE_TAG"
           ]' \
           --query "Command.CommandId" \
           --output text)
@@ -73,7 +72,8 @@ jobs:
           --command-id $command_id \
           --instance-id i-0365b78f5dc2fc512 || true
 
-          status=$(aws ssm list-commands --command-id $command_id --query "Commands[0].Status" --output text)
+          # status=$(aws ssm list-commands --command-id $command_id --query "Command[0].status" --output text)
+          status=$(aws ssm list-command-invocations --command-id $command_id --details --query "CommandInvocations[0].Status" --output text)
 
           if [ "$status" == "Success" ]; then
             echo "Command executed successfully."
