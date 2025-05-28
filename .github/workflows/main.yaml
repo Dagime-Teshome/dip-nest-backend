@@ -63,4 +63,13 @@ jobs:
 
           aws ssm wait command-executed \
           --command-id $command_id \
-          --instance-id i-0365b78f5dc2fc512
+          --instance-id i-0365b78f5dc2fc512 || true
+
+          status=$(aws ssm list-commands --command-id $command_id --query "Commands[0].Status" --output text)
+
+          if [ "$status" == "Success" ]; then
+            echo "Command executed successfully."
+          else
+            echo "Command failed with status: $status"
+            exit 1
+          fi
