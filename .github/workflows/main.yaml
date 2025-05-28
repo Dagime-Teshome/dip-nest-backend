@@ -61,7 +61,7 @@ jobs:
             "docker stop api || true",
             "docker pull ${{steps.login-ecr.outputs.registry}}/${{ vars.REPO_NAME }}:$IMAGE_TAG",
             "docker run --rm -d -p 3000:3000 --name api ${{steps.login-ecr.outputs.registry}}/${{ vars.REPO_NAME }}:$IMAGE_TAG"
-          ]'
+          ]' \
           --query "Command.CommandId" \
           --output text)
 
