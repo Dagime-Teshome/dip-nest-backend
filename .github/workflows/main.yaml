@@ -57,10 +57,16 @@ jobs:
           --targets "Key=instanceids,Values=i-0365b78f5dc2fc512,i-07f50ab667ebda06b" \
           --comment "Pull and run Docker image" \
           --parameters commands='[
-            "aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}",
-            "docker stop api || true",
-            "docker pull ${{steps.login-ecr.outputs.registry}}/${{ vars.REPO_NAME }}:$IMAGE_TAG",
-            "docker run --rm -d -p 3000:3000 --name api ${{steps.login-ecr.outputs.registry}}/${{ vars.REPO_NAME }}:$IMAGE_TAG"
+            "set -e",
+            "echo Logging in to Amazon ECR...",
+            "aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin '${{ steps.login-ecr.outputs.registry }}'",
+            "echo Stopping existing container if running...",
+            "docker stop api || echo No container named api is running",
+            "docker rm api || true",
+            "echo Pulling latest Docker image...",
+            "docker pull '${{ steps.login-ecr.outputs.registry }}/${{ vars.REPO_NAME }}:$IMAGE_TAG'",
+            "echo Running the container...",
+            "docker run --rm -d -p 3000:3000 --name api '${{ steps.login-ecr.outputs.registry }}/${{ vars.REPO_NAME }}:$IMAGE_TAG'"
           ]' \
           --query "Command.CommandId" \
           --output text)
