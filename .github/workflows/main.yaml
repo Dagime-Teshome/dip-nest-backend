@@ -61,12 +61,12 @@ jobs:
             "echo Logging in to Amazon ECR...",
             "aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin '${{ steps.login-ecr.outputs.registry }}'",
             "echo Stopping existing container if running...",
-            "docker stop api || echo No container named api is running",
-            "docker rm api || true",
+            # "docker stop api || echo No container named api is running",
+            # "docker rm api || true",
             "echo Pulling latest Docker image...",
             "docker pull '${{ steps.login-ecr.outputs.registry }}/${{ vars.REPO_NAME }}:$IMAGE_TAG'",
             "echo Running the container...",
-            "docker run --rm -d -p 3000:3000 --name api '${{ steps.login-ecr.outputs.registry }}/${{ vars.REPO_NAME }}:$IMAGE_TAG'"
+            "docker run --rm -d -p 3000:3000 '${{ steps.login-ecr.outputs.registry }}/${{ vars.REPO_NAME }}:$IMAGE_TAG'"
           ]' \
           --query "Command.CommandId" \
           --output text)
