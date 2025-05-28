@@ -67,7 +67,9 @@ jobs:
             --query "Command.CommandId")
 
           for id in $INSTANCE_IDS; do
-            echo "Waiting for instance $id..."
-            aws ssm wait command-executed --command-id "$command_id" --instance-id "$id"
+            echo "Waiting for instance $id"
+            aws ssm wait command-executed \
+            --command-id "$command_id" \
+            --instance-id "$id"
             echo "Instance $id finished."
           done
