@@ -56,9 +56,11 @@ jobs:
           --targets "Key=instanceids,Values=i-0365b78f5dc2fc512,i-07f50ab667ebda06b" \
           --comment "Pull and run Docker container" \
           --parameters commands='[
-              "aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin $ECR_REGISTRY",
-           ]'--query "Command.CommandId" --output text)
+            "aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin $ECR_REGISTRY",
+          ]' \
+          --query "Command.CommandId" \
+          --output text)
 
-          aws ssm wait command-executed \
-          --command-id $command_id \
-          --instance-id i-0365b78f5dc2fc512
+          # aws ssm wait command-executed \
+          # --command-id $command_id \
+          # --instance-id i-0365b78f5dc2fc512
