@@ -37,9 +37,6 @@ jobs:
     needs: build-and-push-to-ecr
     runs-on: ubuntu-latest
     env:
-      ECR_REGISTRY: ${{ needs.build-and-push-to-ecr.outputs.ecr_registry }}
-      ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
-      INSTANCE_IDS: ${{ vars.INSTANCE_IDS }}
       IMAGE_TAG: latest
     steps:
       - name: Configure AWS credentials
