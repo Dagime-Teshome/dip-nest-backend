@@ -61,6 +61,6 @@ jobs:
           --query "Command.CommandId" \
           --output text)
 
-          # aws ssm wait command-executed \
-          # --command-id $command_id \
-          # --instance-id i-0365b78f5dc2fc512
+          aws ssm wait command-executed \
+          --command-id $command_id \
+          --instance-id i-0365b78f5dc2fc512
