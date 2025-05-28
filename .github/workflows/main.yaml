@@ -41,14 +41,13 @@ jobs:
       ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
       INSTANCE_IDS: ${{ vars.INSTANCE_IDS }}
       IMAGE_TAG: latest
-      aws-region: ${{ vars.AWS_REGION }}
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Deploy using SSM
         run: |
