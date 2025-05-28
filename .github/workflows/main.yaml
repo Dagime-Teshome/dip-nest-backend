@@ -32,8 +32,8 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-        echo "ECR Registry: $ECR_REGISTRY"
-        echo "ECR Repository: $ECR_REPOSITORY"
+          echo "ECR Registry: $ECR_REGISTRY"
+          echo "ECR Repository: $ECR_REPOSITORY"
 
   deploy-to-ec2:
     name: Deploy to EC2 Instance
