@@ -54,7 +54,7 @@ jobs:
         run: |
           command_id=$(aws ssm send-command \
           --document-name "AWS-RunShellScript" \
-          --targets "Key=instanceids,Values=i-0365b78f5dc2fc512,i-07f50ab667ebda06b" \
+          --targets "Key=instanceids,Values=i-0aa5da232e4aa6791,i-0787c94a38f65cd0c" \
           --comment "Pull and run Docker image" \
           --parameters commands='[
             "set -e",
@@ -66,16 +66,16 @@ jobs:
             "echo Pulling latest Docker image...",
             "docker pull '${{ steps.login-ecr.outputs.registry }}/${{ vars.REPO_NAME }}:$IMAGE_TAG'",
             "echo Running the container...",
-            "docker run --rm -d -p 3000:3000 '${{ steps.login-ecr.outputs.registry }}/${{ vars.REPO_NAME }}:$IMAGE_TAG'"
+            "docker run --rm -d -p 3000:3000 --name api '${{ steps.login-ecr.outputs.registry }}/${{ vars.REPO_NAME }}:$IMAGE_TAG'"
           ]' \
           --query "Command.CommandId" \
           --output text)
           aws ssm wait command-executed \
           --command-id $command_id \
-          --instance-id i-0365b78f5dc2fc512 || true
+          --instance-id i-0aa5da232e4aa6791 || true
           aws ssm get-command-invocation \
           --command-id $command_id \
-          --instance-id i-0365b78f5dc2fc512 \
+          --instance-id i-0aa5da232e4aa6791 \
           --output json
           status=$(aws ssm list-commands --command-id $command_id --query "Commands[0].StatusDetails" --output text)
           if [ "$status" == "Success" ]; then
