@@ -7,15 +7,15 @@ import {
   Param,
   Post,
   Put,
-} from "@nestjs/common";
-import { TodosService } from "./todos.service";
+} from '@nestjs/common';
+import { TodosService } from './todos.service';
 
 export interface TodoDTO {
   description: string;
   done: boolean;
 }
 
-@Controller("todos")
+@Controller('todos')
 export class TodosController {
   constructor(private todoService: TodosService) {}
 
@@ -29,8 +29,8 @@ export class TodosController {
     return await this.todoService.create(todo);
   }
 
-  @Put(":id")
-  async update(@Param("id") id, @Body("todo") todo: TodoDTO) {
+  @Put(':id')
+  async update(@Param('id') id, @Body('todo') todo: TodoDTO) {
     return await this.todoService.update(id, todo);
   }
 
