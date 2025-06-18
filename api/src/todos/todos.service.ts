@@ -12,7 +12,7 @@ export class TodosService {
   }
 
   async findAll() {
-    return await this.todoRepository.find();
+    return await this.todoRepository.find({ order: { id: 'ASC' } });
   }
 
   async create(todo: TodoDTO) {
