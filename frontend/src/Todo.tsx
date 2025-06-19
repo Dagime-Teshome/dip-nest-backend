@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { TodoDTO } from "./App";
 import axios from "axios";
-import { FaEdit, FaCheck } from "react-icons/fa";
+import { FaEdit, FaCheck, FaTrash } from "react-icons/fa";
 import { host } from "./constants";
 
 type Props = {
@@ -29,8 +29,18 @@ const Todo = ({ todo, updateTodos }: Props) => {
   const editTodo = (key: string, value: string | boolean) => {
     const updatedTodo = { ...todo, [key]: value };
     axios
-      .put(`http://${host}/todos/${todo.id}`, {
+      .put(`http://${host}/api/todos/${todo.id}`, {
         todo: updatedTodo,
+      })
+      .then((response) => {
+        updateTodos(response.data);
+      });
+  };
+
+  const deleteTodo = () => {
+    axios
+      .delete(`http://${host}/api/todos`, {
+        data: { id: todo.id },
       })
       .then((response) => {
         updateTodos(response.data);
@@ -42,6 +52,15 @@ const Todo = ({ todo, updateTodos }: Props) => {
       key={todo.id}
       className={complete ? "complete card" : "incomplete card"}
     >
+      <div className="delete-button-section">
+        <button
+          onClick={() => {
+            deleteTodo();
+          }}
+        >
+          <FaTrash>Delete</FaTrash>
+        </button>
+      </div>
       <div className="todo-section">
         {editTitle ? (
           <input
