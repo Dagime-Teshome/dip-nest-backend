@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-backend-deployment
+  labels:
+    app: todo
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: todo
+        tier: backend
+    spec:
+      containers:
+        - name: todo-backend
+          image: 731733338253.dkr.ecr.eu-north-1.amazonaws.com/dip-api-ecr
+          env:
+            - name: DB_HOST
+              value: terraform-20250714140357136300000008.c78806iggkcn.eu-north-1.rds.amazonaws.com
+            - name: DB_USERNAME
+              value: root
+            - name: DB_PASSWORD
+              value: "12345678"
+            - name: ENVIRONMENT
+              value: production
+          ports:
+            - containerPort: 3000
