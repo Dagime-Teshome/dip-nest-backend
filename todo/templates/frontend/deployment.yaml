@@ -19,6 +19,6 @@ spec:
     spec:
       containers:
         - name: todo-frontend
-          image: 731733338253.dkr.ecr.eu-north-1.amazonaws.com/dip-front-end-ecr:latest
+          image: 584296377948.dkr.ecr.eu-north-1.amazonaws.com/dip-front-end-ecr:latest
           ports:
             - containerPort: 80

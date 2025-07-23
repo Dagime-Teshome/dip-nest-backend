@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migration-job
+spec:
+  template:
+    spec:
+      containers:
+        - name: migration-job
+          image: 584296377948.dkr.ecr.eu-north-1.amazonaws.com/dip-api-ecr:latest
+          env:
+            - name: DB_HOST
+              value: terraform-20250723072636906400000007.ch2ku6e021qq.eu-north-1.rds.amazonaws.com
+            - name: DB_USERNAME
+              value: root
+            - name: DB_PASSWORD
+              value: "12345678"
+            - name: ENVIRONMENT
+              value: production
+          command: ["npm", "run", "migration:run"]
+      restartPolicy: Never
+  backoffLimit: 4
