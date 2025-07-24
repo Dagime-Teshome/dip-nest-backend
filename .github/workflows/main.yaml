@@ -95,4 +95,4 @@ jobs:
       - name: install helm chart
         run: |
           echo "installing helm chart"
-          helm install todo ./todo
+          helm upgrade --install todo ./todo
