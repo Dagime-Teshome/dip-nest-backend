@@ -1,22 +1,25 @@
+# prettier-ignore
+
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: migration-job
+  name: migration-job-{{.Values.backend.imageTag}}
 spec:
+  ttlsecondsAfterFinished: 10
   template:
     spec:
       containers:
         - name: migration-job
-          image: 584296377948.dkr.ecr.eu-north-1.amazonaws.com/dip-api-ecr:latest
+          image: "{{ .Values.backend.image }}:{{.Values.backend.imageTag}}"
           env:
             - name: DB_HOST
-              value: terraform-20250723072636906400000007.ch2ku6e021qq.eu-north-1.rds.amazonaws.com
+              value: {{ .Values.database.host }}
             - name: DB_USERNAME
-              value: root
+              value: {{ .Values.database.username }}
             - name: DB_PASSWORD
-              value: "12345678"
+              value: "{{ .Values.database.password }}"
             - name: ENVIRONMENT
-              value: production
+              value: {{ .Values.database.environment }}
           command: ["npm", "run", "migration:run"]
       restartPolicy: Never
   backoffLimit: 4

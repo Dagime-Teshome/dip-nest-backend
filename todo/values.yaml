@@ -1,3 +1,21 @@
 # Default values for todo.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+
+database:
+  host: terraform-20250724073419177900000008.ch2ku6e021qq.eu-north-1.rds.amazonaws.com
+  username: root
+  password: "12345678"
+  environment: production
+
+frontend:
+  image: 584296377948.dkr.ecr.eu-north-1.amazonaws.com/dip-front-end-ecr
+  imageTag: latest
+  replicas: 1
+  containerPort: 80
+
+backend:
+  image: 584296377948.dkr.ecr.eu-north-1.amazonaws.com/dip-api-ecr
+  imageTag: latest
+  replicas: 1
+  containerPort: 3000

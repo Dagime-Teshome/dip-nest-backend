@@ -1,3 +1,4 @@
+# prettier-ignore
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,6 +20,6 @@ spec:
     spec:
       containers:
         - name: todo-frontend
-          image: 584296377948.dkr.ecr.eu-north-1.amazonaws.com/dip-front-end-ecr:latest
+          image: "{{.Values.frontend.image}}:{{.Values.frontend.imageTag}}"
           ports:
-            - containerPort: 80
+            - containerPort: {{ .Values.frontend.containerPort }}
