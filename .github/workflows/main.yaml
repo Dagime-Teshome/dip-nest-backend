@@ -59,7 +59,40 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./frontend
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-  Explore-GitHub-Actions:
+  Deploy:
+    name: Deploy to EKS
     runs-on: arc-runner-sets
     steps:
-      - run: echo "🎉 This job uses runner scale set runners!"
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup aws ecr details
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Install curl
+        run: |
+          echo "installing curl"
+          sudo apt-get update
+          sudo apt-get install -y curl unzip
+      - name: install helm
+        run: |
+          echo "installing helm"
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+      - name: Install AWS CLI
+        run: |
+          echo "installing aws cli"
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+      - name: configure kubectl
+        run: |
+          echo "configuring kubectl"
+          aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}
+      - name: install helm chart
+        run: |
+          echo "installing helm chart"
+          helm install todo ./todo
